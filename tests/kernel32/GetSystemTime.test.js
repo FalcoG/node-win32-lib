@@ -7,7 +7,8 @@ test('get system time', () => {
 
   const today = new Date()
 
-  expect(PSystemTime.wYear).toBe(today.getFullYear())
-  expect(PSystemTime.wMonth).toBe(today.getMonth() + 1)
-  expect(PSystemTime.wDay).toBe(today.getDate())
+  expect(PSystemTime.wYear).toBe(today.getUTCFullYear())
+  expect(PSystemTime.wMonth).toBe(today.getUTCMonth() + 1)
+  expect(PSystemTime.wDay).toBe(today.getUTCDate())
+  expect(PSystemTime.wHour).toBe(today.getUTCHours())
 })
