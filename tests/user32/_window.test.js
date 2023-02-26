@@ -1,8 +1,13 @@
-import { spawn } from 'child_process'
+import { spawn } from 'node:child_process'
+
 import { user32 } from '../../lib/native-libraries.js'
 
-
 describe('Window testing', () => {
+  const application = {
+    executable: 'C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe',
+    title: 'Document - WordPad'
+  }
+
   let spawnedApplication, spawnedApplicationHandle
 
   /**
@@ -11,10 +16,10 @@ describe('Window testing', () => {
   beforeAll(async () => {
     let attempts = 0, loop
 
-    spawnedApplication = spawn('C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe')    
+    spawnedApplication = spawn(application.executable) 
     spawnedApplicationHandle = await new Promise((resolve, reject) => {
       loop = setInterval(() => {
-        const handle = user32.FindWindowExW(0, 0, null, Buffer.from('Document - WordPad\0', 'ucs2'))
+        const handle = user32.FindWindowExW(0, 0, null, Buffer.from(`${application.title}\0`, 'ucs2'))
         
         if (handle !== 0) resolve(handle)
         else if (attempts > 5) reject(handle)
@@ -29,17 +34,17 @@ describe('Window testing', () => {
   })
 
   test('FindWindowExW', () => {
-    const hWnd = user32.FindWindowExW(0, 0, null, Buffer.from('Document - WordPad\0', 'ucs2'))
+    const hWnd = user32.FindWindowExW(0, 0, null, Buffer.from(`${application.title}\0`, 'ucs2'))
     expect(hWnd).toBe(spawnedApplicationHandle)
   })
 
   test('FindWindowW', () => {
-    const hWnd = user32.FindWindowW(null, Buffer.from('Document - WordPad\0', 'ucs2'))
+    const hWnd = user32.FindWindowW(null, Buffer.from(`${application.title}\0`, 'ucs2'))
     expect(hWnd).toBe(spawnedApplicationHandle)
   })
 
   test('GetWindowTextW', () => {
-    const expectedText = 'Document - WordPad'
+    const expectedText = application.title
     const maxCharacters = 100
 
     // prepare a buffer for the native function call

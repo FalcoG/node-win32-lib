@@ -1,4 +1,4 @@
-import os from 'os'
+import os from 'node:os'
 import { kernel32 } from '../../lib/native-libraries.js'
 
 test('get current processor number', () => {

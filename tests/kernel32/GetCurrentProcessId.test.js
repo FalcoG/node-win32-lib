@@ -1,4 +1,4 @@
-import process from 'process'
+import process from 'node:process'
 import { kernel32 } from '../../lib/native-libraries.js'
 
 test('get current process ID', () => {
