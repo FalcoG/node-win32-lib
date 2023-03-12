@@ -80,6 +80,39 @@ describe('Menu testing', () => {
       '&Help'
     ])
   })
+
+  test('GetMenuState', () => {
+    const mainMenuOffset = 2 // 2 = 'view' submenu
+
+    const menuHandle = user32.GetMenu(spawnedApplicationHandle)
+    const subMenuHandle = user32.GetSubMenu(menuHandle, mainMenuOffset)
+    const subMenuItems = user32.GetMenuItemCount(subMenuHandle)
+
+    const menuState = user32.GetMenuState(menuHandle, mainMenuOffset, NativeConstants.MF_BYPOSITION)
+
+    expect(menuState).not.toBe(-1) // menu item must exist
+
+    const resultBuffer = Buffer.alloc(2)
+    resultBuffer.writeUInt16BE(menuState)
+
+    const flag = resultBuffer.readUIntBE(1, 1)
+    expect(flag).toBe(NativeConstants.MF_POPUP) // popup indicates a submenu
+
+    const menuItems = resultBuffer.readUIntBE(0, 1)
+    expect(menuItems).toBe(subMenuItems) // expect menu state item count to match with GetMenuItemCount
+
+    const details = user32.GetMenuState(
+      subMenuHandle, 3, NativeConstants.MF_BYPOSITION)
+    expect(details).toBe(NativeConstants.MF_CHECKED) // menu item is checked
+
+    const separator = user32.GetMenuState(
+      subMenuHandle, 4, NativeConstants.MF_BYPOSITION)
+    expect(separator).toBe(
+      NativeConstants.MF_SEPARATOR + 
+      NativeConstants.MF_GRAYED +
+      NativeConstants.MF_DISABLED
+    ) // menu item is a separator, disabled and grayed
+  })
   
   afterAll(() => {
     spawnedApplication.kill('SIGINT')
