@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 
 import { user32 } from '../../lib/native-libraries.js'
 import NativeConstants from '../../lib/native-constants.js'
+import { NativeStructBasic } from '../../lib/native-types.js'
 
 describe('Menu testing', () => {
   const application = {
@@ -53,6 +54,18 @@ describe('Menu testing', () => {
     const menuItemsLength = user32.GetMenuItemCount(menuHandle)
     
     expect(menuItemsLength).toBe(6)
+  })
+
+  test('GetMenuItemRect', () => {
+    const menuHandle = user32.GetMenu(spawnedApplicationHandle)
+
+    const rect = new NativeStructBasic.RECT()
+    const result = user32.GetMenuItemRect(spawnedApplicationHandle, menuHandle, 2, rect.ref())
+
+    expect(result).toBe(true)
+
+    expect(rect.right - rect.left).toBeGreaterThan(0)
+    expect(rect.bottom - rect.top).toBeGreaterThan(0)
   })
 
   test('GetMenuStringW', () => {
