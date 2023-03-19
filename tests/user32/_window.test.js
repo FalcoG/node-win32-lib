@@ -58,6 +58,12 @@ describe('Window testing', () => {
     expect(windowTextLength).toBe(expectedText.length)
     expect(Buffer.compare(bufferText, expectedBuffer)).toBe(0)
   })
+
+  test('GetForegroundWindow', () => {
+    const handle = user32.GetForegroundWindow()
+
+    expect(handle).toBe(spawnedApplicationHandle)
+  })
   
   afterAll(() => {
     spawnedApplication.kill('SIGINT')

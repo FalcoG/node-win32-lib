@@ -1,6 +1,6 @@
-import { NativeStruct, NativeStructBasic } from './lib/native-types.js'
-import { user32, shell32, kernel32 } from './lib/native-libraries.js'
-import NativeConstants from './lib/native-constants.js'
+import { NativeStruct, NativeStructBasic } from '../lib/native-types.js'
+import { user32, shell32, kernel32 } from '../lib/native-libraries.js'
+import NativeConstants from '../lib/native-constants.js'
 
 /**
  * ABM_NEW
