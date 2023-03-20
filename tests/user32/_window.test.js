@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process'
+import ref from 'ref-napi'
 
 import { user32 } from '../../lib/native-libraries.js'
+import { NativeTypes } from '../../lib/native-types.js'
 
 describe('Window testing', () => {
   const application = {
@@ -63,6 +65,14 @@ describe('Window testing', () => {
     const handle = user32.GetForegroundWindow()
 
     expect(handle).toBe(spawnedApplicationHandle)
+  })
+
+  test('GetWindowThreadProcessId', () => {
+    const processId = ref.alloc(NativeTypes.LPDWORD)
+    const threadId = user32.GetWindowThreadProcessId(spawnedApplicationHandle, processId)
+    const PID = processId.readInt32LE(0)
+
+    expect(PID).toBe(spawnedApplication.pid)
   })
   
   afterAll(() => {

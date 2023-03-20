@@ -1,6 +1,6 @@
 import ref from 'ref-napi'
 import ffi from 'ffi-napi'
-import { user32 } from '../lib/native-libraries.js'
+import { user32, kernel32, psapi, oleacc } from '../lib/native-libraries.js'
 import NativeConstants from '../lib/native-constants.js'
 import { NativeTypes } from '../lib/native-types.js'
 
@@ -25,16 +25,29 @@ const WinEventProc = ffi.Callback(
     NativeTypes.DWORD
   ],
   (hWinEventHook, event, hwnd, idObject, idChild, idEventThread, dwmsEventTime) => {
-    console.log('event triggered', hwnd)
+    const processId = ref.alloc(NativeTypes.LPDWORD)
+    const threadId = user32.GetWindowThreadProcessId(hwnd, processId)
+    const PID = processId.readInt32LE(0)
+    console.log('hwnd', hwnd, 'threadid', threadId, 'lpdwProcessId', PID)
 
-    // read the application title
-    const maxCharacters = 100
+    const processHandle = kernel32.OpenProcess(
+      NativeConstants.PROCESS_QUERY_INFORMATION | NativeConstants.PROCESS_VM_READ,
+      false,
+      PID
+    )
 
-    // prepare a buffer for the native function call
-    const bufferText = Buffer.alloc(maxCharacters * 2)
-    const windowTextLength = user32.GetWindowTextW(hwnd, bufferText, maxCharacters)
+    const moduleFileNameLength = 100
+    const moduleFileName = Buffer.alloc(moduleFileNameLength * 2)
 
-    console.log(bufferText.toString('ucs2').slice(0, windowTextLength))
+    const moduleFile = psapi.GetModuleFileNameExW(processHandle, null, moduleFileName, moduleFileNameLength)
+    
+    console.log('moduleFile', moduleFile, moduleFileName.toString('ucs2').slice(0, moduleFile))
+    console.log('open handle', processHandle)
+
+    if (processHandle) {
+      const close = kernel32.CloseHandle(processHandle)
+      console.log('close handle', close)
+    }
   }
 )
 
@@ -53,10 +66,10 @@ let res = getMessage()
 while (res != 0) {
   switch (res) {
     case -1:
-      console.log("Invalid GetMessageA arguments or something!");
+      console.log('Invalid GetMessageA arguments or something!')
       break
     default:
-      console.log("Got a message!")
+      console.log('Got a message!')
   }
 
   res = getMessage()
