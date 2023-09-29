@@ -7,13 +7,13 @@ import NativeConstants from './lib/native-constants.js'
  * - cbSize
  * - hWnd
  * - uCallbackMessage
- * 
+ *
  * ABM_QUERYPOS
  * - cbSize
  * - hWnd
  * - uEdge
  * - rc
- * 
+ *
  * ABM_SETPOS
  * - cbSize
  * - hWnd
@@ -24,7 +24,7 @@ import NativeConstants from './lib/native-constants.js'
 const appbarData = new NativeStruct.APPBARDATA()
 appbarData.cbSize = NativeStruct.APPBARDATA.size
 // appbarData.uCallbackMessage = 401
-appbarData.hWnd = process.pid
+appbarData.hWnd = 658220
 
 const result = shell32.SHAppBarMessage(NativeConstants.ABM_NEW, appbarData.ref())
 
